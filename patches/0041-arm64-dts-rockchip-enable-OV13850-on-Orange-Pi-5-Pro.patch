@@ -1,0 +1,66 @@
+From dfab9da961f6ac01a79545b46c4ed61a4ad1dd76 Mon Sep 17 00:00:00 2001
+From: Xinxiang Wang <wxinxiang8@gmail.com>
+Date: Fri, 11 Sep 2026 15:09:49 +0800
+Subject: [PATCH 41/44] arm64: dts: rockchip: enable OV13850 on Orange Pi 5 Pro
+
+---
+ .../dts/rockchip/rk3588s-orangepi-5-pro.dts   | 43 +++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5-pro.dts b/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5-pro.dts
+index c9679bac1db73b23343400e409bb09607a5210a6..9a19efdc358135c2fa1e8750e7ca5faa29e441f1 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5-pro.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3588s-orangepi-5-pro.dts
+@@ -141,6 +141,49 @@ es8388: audio-codec@11 {
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&i2s2m1_mclk>;
+ 	};
++
++	ov13850: camera@10 {
++		compatible = "ovti,ov13850";
++		reg = <0x10>;
++		clocks = <&cru CLK_MIPI_CAMARAOUT_M1>;
++		clock-names = "xvclk";
++		pinctrl-names = "default";
++		pinctrl-0 = <&mipim1_camera1_clk>;
++		reset-gpios = <&gpio3 RK_PA7 GPIO_ACTIVE_HIGH>;
++		powerdown-gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
++
++		port {
++			ov13850_out: endpoint {
++					remote-endpoint = <&csi0_in_ov13850>;
++					data-lanes = <1 2>;
++					link-frequencies = /bits/ 64 <300000000>;
++			};
++		};
++	};
++};
++
++&csi0 {
++	status = "okay";
++};
++
++&csi0_in {
++	csi0_in_ov13850: endpoint {
++			bus-type = <4>;
++			remote-endpoint = <&ov13850_out>;
++			data-lanes = <1 2>;
++	};
++};
++
++&mipidcphy0 {
++	status = "okay";
++};
++
++&vicap {
++	status = "okay";
++};
++
++&vicap_mmu {
++	status = "okay";
+ };
+ 
+ &i2c4 {
+-- 
+2.53.0
+

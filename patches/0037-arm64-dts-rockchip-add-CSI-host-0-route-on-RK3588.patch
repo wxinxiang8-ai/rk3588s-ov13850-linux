@@ -1,0 +1,68 @@
+From 40c0b885cfd6b2a16c8ffae063e34a8514665b4e Mon Sep 17 00:00:00 2001
+From: wxinxiang8-ai <wxinxiang8@gmail.com>
+Date: Wed, 12 Aug 2026 10:01:21 +0800
+Subject: [PATCH 37/44] arm64: dts: rockchip: add CSI host 0 route on RK3588
+
+Add CSI host 0 and connect its output to the VICAP MIPI0 input.
+Use the Samsung DCPHY in receive mode for the CSI-2 input.
+
+Signed-off-by: wxinxiang8-ai <wxinxiang8@gmail.com>
+---
+ arch/arm64/boot/dts/rockchip/rk3588-base.dtsi | 34 +++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi b/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
+index f90096919262969940a0e4c057645e54c8a8242d..93ea3b8e6284b126e7dcdb022b34403d875dbfc9 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
+@@ -1397,6 +1397,10 @@ vicap_dvp: port@0 {
+ 
+ 			vicap_mipi0: port@1 {
+ 				reg = <0x1>;
++
++				vicap_mipi0_input: endpoint {
++					remote-endpoint = <&csi0_output>;
++				};
+ 			};
+ 
+ 			vicap_mipi1: port@2 {
+@@ -1449,6 +1453,36 @@ vicap_mmu: iommu@fdce0800 {
+ 		status = "disabled";
+ 	};
+ 
++	csi0: csi@fdd10000 {
++		compatible = "rockchip,rk3588-mipi-csi2", "rockchip,rk3568-mipi-csi2";
++		reg = <0x0 0xfdd10000 0x0 0x10000>;
++		interrupts = <GIC_SPI 143 IRQ_TYPE_LEVEL_HIGH 0>,
++			     <GIC_SPI 144 IRQ_TYPE_LEVEL_HIGH 0>;
++		interrupt-names = "err1", "err2";
++		clocks = <&cru PCLK_CSI_HOST_0>;
++		phys = <&mipidcphy0 PHY_TYPE_DPHY RK_DCPHY_DIR_RX>;
++		power-domains = <&power RK3588_PD_VI>;
++		resets = <&cru SRST_P_CSI_HOST_0>;
++		status = "disabled";
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			csi0_in: port@0 {
++				reg = <0>;
++			};
++
++			csi0_out: port@1 {
++				reg = <1>;
++
++				csi0_output: endpoint {
++					remote-endpoint = <&vicap_mipi0_input>;
++				};
++			};
++		};
++	};
++
+ 	csi2: csi@fdd30000 {
+ 		compatible = "rockchip,rk3588-mipi-csi2", "rockchip,rk3568-mipi-csi2";
+ 		reg = <0x0 0xfdd30000 0x0 0x10000>;
+-- 
+2.53.0
+

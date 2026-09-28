@@ -1,0 +1,36 @@
+From 8f9e1270a66d565125272235877ac7032b0c31dd Mon Sep 17 00:00:00 2001
+From: Xinxiang Wang <wxinxiang8@gmail.com>
+Date: Wed, 16 Sep 2026 17:38:51 +0800
+Subject: [PATCH 42/44] media: i2c: ov13850: fix runtime PM client data access
+
+---
+ drivers/media/i2c/ov13850.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/ov13850.c b/drivers/media/i2c/ov13850.c
+index 4be6eae3b710adccabe13fb7389a4d25374b31c4..59bead334d02ce84c43bffffcd0ff496ee570839 100644
+--- a/drivers/media/i2c/ov13850.c
++++ b/drivers/media/i2c/ov13850.c
+@@ -1204,7 +1204,8 @@ static int ov13850_set_ctrl(struct v4l2_ctrl *ctrl)
+ static int __maybe_unused ov13850_runtime_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	struct ov13850 *ov13850 = i2c_get_clientdata(client);
++	struct v4l2_subdev *sd = i2c_get_clientdata(client);
++	struct ov13850 *ov13850 = to_ov13850(sd);
+ 	int ret;
+ 
+ 	ret = ov13850_power_on(ov13850);
+@@ -1223,7 +1224,8 @@ static int __maybe_unused ov13850_runtime_resume(struct device *dev)
+ static int __maybe_unused ov13850_runtime_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+-	struct ov13850 *ov13850 = i2c_get_clientdata(client);
++	struct v4l2_subdev *sd = i2c_get_clientdata(client);
++	struct ov13850 *ov13850 = to_ov13850(sd);
+ 
+ 	ov13850_power_off(ov13850);
+ 
+-- 
+2.53.0
+

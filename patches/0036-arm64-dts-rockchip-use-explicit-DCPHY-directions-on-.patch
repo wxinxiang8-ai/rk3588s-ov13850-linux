@@ -1,0 +1,68 @@
+From 68e14fca50c29ea77a140ab41b384bb248f14410 Mon Sep 17 00:00:00 2001
+From: wxinxiang8-ai <wxinxiang8@gmail.com>
+Date: Tue, 11 Aug 2026 22:40:01 +0800
+Subject: [PATCH 36/44] arm64: dts: rockchip: use explicit DCPHY directions on
+ RK3588
+
+The RK3588 Samsung MIPI DCPHY can serve both DSI
+transmitters and CSI receivers. Switch the providers to
+the two-cell form and update the existing DSI consumers
+to request the transmit direction explicitly.
+
+Signed-off-by: wxinxiang8-ai <wxinxiang8@gmail.com>
+---
+ arch/arm64/boot/dts/rockchip/rk3588-base.dtsi | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi b/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
+index 39c15ba3b7af8d5661d791138ab644d71089fac2..f90096919262969940a0e4c057645e54c8a8242d 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3588-base.dtsi
+@@ -9,7 +9,7 @@
+ #include <dt-bindings/phy/phy.h>
+ #include <dt-bindings/power/rk3588-power.h>
+ #include <dt-bindings/reset/rockchip,rk3588-cru.h>
+-#include <dt-bindings/phy/phy.h>
++#include <dt-bindings/phy/phy-rockchip-samsung-dcphy.h>
+ #include <dt-bindings/ata/ahci.h>
+ #include <dt-bindings/thermal/thermal.h>
+ 
+@@ -1669,7 +1669,7 @@ dsi0: dsi@fde20000 {
+ 		resets = <&cru SRST_P_DSIHOST0>;
+ 		reset-names = "apb";
+ 		power-domains = <&power RK3588_PD_VOP>;
+-		phys = <&mipidcphy0 PHY_TYPE_DPHY>;
++		phys = <&mipidcphy0 PHY_TYPE_DPHY RK_DCPHY_DIR_TX>;
+ 		phy-names = "dcphy";
+ 		rockchip,grf = <&vop_grf>;
+ 		status = "disabled";
+@@ -1697,7 +1697,7 @@ dsi1: dsi@fde30000 {
+ 		resets = <&cru SRST_P_DSIHOST1>;
+ 		reset-names = "apb";
+ 		power-domains = <&power RK3588_PD_VOP>;
+-		phys = <&mipidcphy1 PHY_TYPE_DPHY>;
++		phys = <&mipidcphy1 PHY_TYPE_DPHY RK_DCPHY_DIR_TX>;
+ 		phy-names = "dcphy";
+ 		rockchip,grf = <&vop_grf>;
+ 		status = "disabled";
+@@ -3309,7 +3309,7 @@ mipidcphy0: phy@feda0000 {
+ 			 <&cru SRST_P_MIPI_DCPHY0_GRF>,
+ 			 <&cru SRST_S_MIPI_DCPHY0>;
+ 		reset-names = "m_phy", "apb", "grf", "s_phy";
+-		#phy-cells = <1>;
++		#phy-cells = <2>;
+ 		status = "disabled";
+ 	};
+ 
+@@ -3325,7 +3325,7 @@ mipidcphy1: phy@fedb0000 {
+ 			 <&cru SRST_P_MIPI_DCPHY1_GRF>,
+ 			 <&cru SRST_S_MIPI_DCPHY1>;
+ 		reset-names = "m_phy", "apb", "grf", "s_phy";
+-		#phy-cells = <1>;
++		#phy-cells = <2>;
+ 		status = "disabled";
+ 	};
+ 
+-- 
+2.53.0
+

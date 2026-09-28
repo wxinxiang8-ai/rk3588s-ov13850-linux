@@ -1,0 +1,78 @@
+From 7d981d6ebda52fbaa86897de595da950fa5e0711 Mon Sep 17 00:00:00 2001
+From: Jason Yang <jason98166@gmail.com>
+Date: Tue, 21 Jul 2026 18:35:20 +0800
+Subject: [PATCH 28/44] phy: rockchip-samsung-dcphy: factor MIPI D-PHY power
+ on/off into helpers
+
+To prepare for adding a receiver (CSI) direction next to the existing
+transmitter (DSI) one, rename the transmitter power-on helper to
+samsung_mipi_dphy_tx_power_on() and gather its teardown into a new
+samsung_mipi_dphy_tx_power_off(), so both directions can later be
+powered on and off through symmetric helpers.
+
+No functional change intended.
+
+Signed-off-by: Jason Yang <jason98166@gmail.com>
+Assisted-by: Claude:claude-opus-4-8
+---
+ .../phy/rockchip/phy-rockchip-samsung-dcphy.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/phy/rockchip/phy-rockchip-samsung-dcphy.c b/drivers/phy/rockchip/phy-rockchip-samsung-dcphy.c
+index 4508a314727232473e90fd1649ec0f2829b65c49..6e32b223f37baf2ad6025d07822f6043081d9f0e 100644
+--- a/drivers/phy/rockchip/phy-rockchip-samsung-dcphy.c
++++ b/drivers/phy/rockchip/phy-rockchip-samsung-dcphy.c
+@@ -1333,7 +1333,7 @@ samsung_mipi_dphy_data_lane_timing_init(struct samsung_mipi_dcphy *samsung)
+ 	regmap_write(samsung->regmap, DPHY_MD3_TIME_CON4, 0x1f4);
+ }
+ 
+-static int samsung_mipi_dphy_power_on(struct samsung_mipi_dcphy *samsung)
++static int samsung_mipi_dphy_tx_power_on(struct samsung_mipi_dcphy *samsung)
+ {
+ 	int ret;
+ 
+@@ -1359,6 +1359,14 @@ static int samsung_mipi_dphy_power_on(struct samsung_mipi_dcphy *samsung)
+ 	return 0;
+ }
+ 
++static int samsung_mipi_dphy_tx_power_off(struct samsung_mipi_dcphy *samsung)
++{
++	samsung_mipi_dphy_lane_disable(samsung);
++	samsung_mipi_dcphy_pll_disable(samsung);
++
++	return 0;
++}
++
+ static int samsung_mipi_dcphy_power_on(struct phy *phy)
+ {
+ 	struct samsung_mipi_dcphy *samsung = phy_get_drvdata(phy);
+@@ -1369,7 +1377,7 @@ static int samsung_mipi_dcphy_power_on(struct phy *phy)
+ 
+ 	switch (samsung->type) {
+ 	case PHY_TYPE_DPHY:
+-		return samsung_mipi_dphy_power_on(samsung);
++		return samsung_mipi_dphy_tx_power_on(samsung);
+ 	default:
+ 		/* CPHY part to be implemented later */
+ 		return -EOPNOTSUPP;
+@@ -1384,16 +1392,11 @@ static int samsung_mipi_dcphy_power_off(struct phy *phy)
+ 
+ 	switch (samsung->type) {
+ 	case PHY_TYPE_DPHY:
+-		samsung_mipi_dphy_lane_disable(samsung);
+-		break;
++		return samsung_mipi_dphy_tx_power_off(samsung);
+ 	default:
+ 		/* CPHY part to be implemented later */
+ 		return -EOPNOTSUPP;
+ 	}
+-
+-	samsung_mipi_dcphy_pll_disable(samsung);
+-
+-	return 0;
+ }
+ 
+ static int
+-- 
+2.53.0
+

@@ -1,0 +1,46 @@
+From 6f899b4798bcd34fc0a57a27e921a3cb216f023e Mon Sep 17 00:00:00 2001
+From: Xinxiang Wang <wxinxiang8@gmail.com>
+Date: Tue, 22 Sep 2026 18:59:48 +0800
+Subject: [PATCH 44/44] media: i2c: ov13850: filter frame interval enumeration
+
+---
+ drivers/media/i2c/ov13850.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/media/i2c/ov13850.c b/drivers/media/i2c/ov13850.c
+index 5ea76bd818ac549a9087a5c0441b2695b9e0f2c7..5ed8bae75aa4babfd16e9e19518f3c15935f3b0f 100644
+--- a/drivers/media/i2c/ov13850.c
++++ b/drivers/media/i2c/ov13850.c
+@@ -1129,14 +1129,23 @@ static int ov13850_enum_frame_interval(struct v4l2_subdev *sd,
+ 				       struct v4l2_subdev_state *sd_state,
+ 				       struct v4l2_subdev_frame_interval_enum *fie)
+ {
+-	if (fie->index >= ARRAY_SIZE(supported_modes))
++	const struct ov13850_mode *mode;
++	unsigned int i;
++
++	if (fie->pad != 0 || fie->index != 0 ||
++	    fie->code != MEDIA_BUS_FMT_SBGGR10_1X10)
+ 		return -EINVAL;
+ 
+-	fie->code = MEDIA_BUS_FMT_SBGGR10_1X10;
+-	fie->width = supported_modes[fie->index].width;
+-	fie->height = supported_modes[fie->index].height;
+-	fie->interval = supported_modes[fie->index].max_fps;
+-	return 0;
++	for (i = 0; i < ARRAY_SIZE(supported_modes); i++) {
++		mode = &supported_modes[i];
++
++		if (fie->width == mode->width && fie->height == mode->height) {
++			fie->interval = mode->max_fps;
++			return 0;
++		}
++	}
++
++	return -EINVAL;
+ }
+ 
+ static int ov13850_set_ctrl(struct v4l2_ctrl *ctrl)
+-- 
+2.53.0
+

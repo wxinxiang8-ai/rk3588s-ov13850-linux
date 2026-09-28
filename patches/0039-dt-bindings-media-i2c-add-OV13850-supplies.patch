@@ -1,0 +1,43 @@
+From bd7c365a2fd3c7f837198827258f3fa9f8aadc29 Mon Sep 17 00:00:00 2001
+From: Xinxiang Wang <wxinxiang8@gmail.com>
+Date: Fri, 11 Sep 2026 15:09:34 +0800
+Subject: [PATCH 39/44] dt-bindings: media: i2c: add OV13850 supplies
+
+---
+ .../devicetree/bindings/media/i2c/ovti,ov13850.yaml | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/media/i2c/ovti,ov13850.yaml b/Documentation/devicetree/bindings/media/i2c/ovti,ov13850.yaml
+index f18a693a3c5960d5746f4ebae63046d7280a001d..2fc268e5d7c98e496b1da2d1d678bf824de82a14 100644
+--- a/Documentation/devicetree/bindings/media/i2c/ovti,ov13850.yaml
++++ b/Documentation/devicetree/bindings/media/i2c/ovti,ov13850.yaml
+@@ -31,6 +31,15 @@ properties:
+   clock-names:
+     const: xvclk
+ 
++  avdd-supply:
++    description: Analog Domain Power Supply
++
++  dovdd-supply:
++    description: I/O Domain Power Supply
++
++  dvdd-supply:
++    description: Digital Domain Power Supply
++
+   reset-gpios:
+     description: XSHUTDN reset GPIO (active HIGH)
+     maxItems: 1
+@@ -88,6 +97,10 @@ examples:
+             clocks = <&xvclk>;
+             clock-names = "xvclk";
+ 
++            avdd-supply = <&avdd>;
++            dovdd-supply = <&dovdd>;
++            dvdd-supply = <&dvdd>;
++
+             reset-gpios = <&gpio3 RK_PA7 GPIO_ACTIVE_HIGH>;
+             powerdown-gpios = <&gpio3 RK_PC5 GPIO_ACTIVE_HIGH>;
+ 
+-- 
+2.53.0
+

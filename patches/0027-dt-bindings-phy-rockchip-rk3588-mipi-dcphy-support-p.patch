@@ -1,0 +1,90 @@
+From dd462d3e92bad8d95cd47652a5dcd1092d338b4b Mon Sep 17 00:00:00 2001
+From: Jason Yang <jason98166@gmail.com>
+Date: Tue, 21 Jul 2026 18:35:19 +0800
+Subject: [PATCH 27/44] dt-bindings: phy: rockchip,rk3588-mipi-dcphy: support
+ per-direction phys
+
+The Samsung MIPI D-/C-PHY block on RK3588 drives a MIPI DSI transmitter
+and, on the same PHY, can receive a MIPI CSI camera. Describing both as
+independent consumers of one PHY requires the direction to be expressed
+in the devicetree.
+
+Allow "#phy-cells" to be 1 or 2. The existing single-cell form still
+selects the PHY type and refers to the transmitter, so shipped DSI
+device trees stay valid. A second cell adds the direction, letting a
+DSI (TX) and a CSI (RX) reference the same PHY node as separate
+consumers.
+
+Add include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h for the
+RK_DCPHY_DIR_TX and RK_DCPHY_DIR_RX direction constants.
+
+Signed-off-by: Jason Yang <jason98166@gmail.com>
+Assisted-by: Claude:claude-opus-4-8
+---
+ .../phy/rockchip,rk3588-mipi-dcphy.yaml       | 22 ++++++++++++++-----
+ .../phy/phy-rockchip-samsung-dcphy.h          | 13 +++++++++++
+ 2 files changed, 29 insertions(+), 6 deletions(-)
+ create mode 100644 include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h
+
+diff --git a/Documentation/devicetree/bindings/phy/rockchip,rk3588-mipi-dcphy.yaml b/Documentation/devicetree/bindings/phy/rockchip,rk3588-mipi-dcphy.yaml
+index c8ff5ba22a86b5ba49deeb017204d95f748c92c7..53d69513756679a466cad751362a90c37db6463d 100644
+--- a/Documentation/devicetree/bindings/phy/rockchip,rk3588-mipi-dcphy.yaml
++++ b/Documentation/devicetree/bindings/phy/rockchip,rk3588-mipi-dcphy.yaml
+@@ -20,12 +20,22 @@ properties:
+     maxItems: 1
+ 
+   "#phy-cells":
+-    const: 1
++    enum: [1, 2]
+     description: |
+-      Argument is mode to operate in. Supported modes are:
+-        - PHY_TYPE_DPHY
+-        - PHY_TYPE_CPHY
+-      See include/dt-bindings/phy/phy.h for constants.
++      A single cell selects the PHY type and always refers to the
++      transmitter (DSI) direction. It is kept for backwards compatibility
++      with existing device trees:
++        - <PHY_TYPE_DPHY>
++        - <PHY_TYPE_CPHY>
++
++      Two cells select the PHY type and the direction, so that the
++      transmitter (DSI) and the receiver (CSI) can be described as
++      independent consumers of the same PHY:
++        - <PHY_TYPE_DPHY RK_DCPHY_DIR_TX>
++        - <PHY_TYPE_DPHY RK_DCPHY_DIR_RX>
++
++      See include/dt-bindings/phy/phy.h and
++      include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h for constants.
+ 
+   clocks:
+     maxItems: 2
+@@ -82,6 +92,6 @@ examples:
+                  <&cru SRST_S_MIPI_DCPHY0>;
+         reset-names = "m_phy", "apb", "grf", "s_phy";
+         rockchip,grf = <&mipidcphy0_grf>;
+-        #phy-cells = <1>;
++        #phy-cells = <2>;
+       };
+     };
+diff --git a/include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h b/include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..60f6630f58b32439637d9ae90521bc924cb0d0a3
+--- /dev/null
++++ b/include/dt-bindings/phy/phy-rockchip-samsung-dcphy.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) */
++/*
++ * Copyright (c) 2026 Jason Yang <jason98166@gmail.com>
++ */
++
++#ifndef _DT_BINDINGS_PHY_ROCKCHIP_SAMSUNG_DCPHY_H
++#define _DT_BINDINGS_PHY_ROCKCHIP_SAMSUNG_DCPHY_H
++
++/* Direction of a Rockchip Samsung MIPI D-/C-PHY combo block */
++#define RK_DCPHY_DIR_TX		0
++#define RK_DCPHY_DIR_RX		1
++
++#endif /* _DT_BINDINGS_PHY_ROCKCHIP_SAMSUNG_DCPHY_H */
+-- 
+2.53.0
+

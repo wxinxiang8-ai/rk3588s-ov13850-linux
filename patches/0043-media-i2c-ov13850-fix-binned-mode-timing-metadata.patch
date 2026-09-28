@@ -1,0 +1,30 @@
+From e3db25ac4e434d6f6388d800ca52e6cc380afe75 Mon Sep 17 00:00:00 2001
+From: Xinxiang Wang <wxinxiang8@gmail.com>
+Date: Sun, 20 Sep 2026 14:17:33 +0800
+Subject: [PATCH 43/44] media: i2c: ov13850: fix binned mode timing metadata
+
+Signed-off-by: Xinxiang Wang <wxinxiang8@gmail.com>
+---
+ drivers/media/i2c/ov13850.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/media/i2c/ov13850.c b/drivers/media/i2c/ov13850.c
+index 59bead334d02ce84c43bffffcd0ff496ee570839..5ea76bd818ac549a9087a5c0441b2695b9e0f2c7 100644
+--- a/drivers/media/i2c/ov13850.c
++++ b/drivers/media/i2c/ov13850.c
+@@ -705,10 +705,10 @@ static const struct ov13850_mode supported_modes[] = {
+ 		.height = 1568,
+ 		.max_fps = {
+ 			.numerator = 10000,
+-			.denominator = 150000,
++			.denominator = 300000,
+ 		},
+ 		.exp_def = 0x0600,
+-		.hts_def = 0x12c0,
++		.hts_def = 0x0960,
+ 		.vts_def = 0x0680,
+ 		.reg_list = ov13850_2112x1568_regs,
+ 	}, {
+-- 
+2.53.0
+
